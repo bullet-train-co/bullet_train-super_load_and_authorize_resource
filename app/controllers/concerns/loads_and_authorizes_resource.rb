@@ -8,7 +8,11 @@ module LoadsAndAuthorizesResource
 
     def load_team
       # Sometimes `@team` has already been populated by earlier `before_action` steps.
-      @team ||= @child_object&.team || @parent_object&.team
+      if @child_object&.respond_to?(:team) || @parent_object&.respond_to?(:team)
+        @team ||= @child_object&.team || @parent_object&.team
+      elsif @child_object&.respond_to?(:current_team) || @parent_object&.respond_to?(:current_team)
+        @team ||= @child_object&.current_team || @parent_object&.current_team
+      end
 
       # Update current attributes.
       Current.team = @team
